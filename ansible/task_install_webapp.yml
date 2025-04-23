@@ -1,0 +1,38 @@
+---
+- name: Implantar aplicação web
+  hosts: localhost
+  become: yes
+
+  vars:
+    repo_url: 'https://github.com/verissimomoraes/web-xpe.git'
+    app_dir: '/var/www/html'
+
+  tasks:
+    - name: Clonar repositório Git contendo os arquivos da aplicação web
+      git:
+        repo: "{{ repo_url }}"
+        dest: /tmp/app
+
+    - name: Copiar os arquivos da aplicação para o diretório apropriado do servidor web
+      copy:
+        src: /tmp/app/
+        dest: "{{ app_dir }}"
+        owner: www-data
+        group: www-data
+        mode: '0755'
+        remote_src: yes
+
+    - name: Configurar as permissões corretas para os arquivos da aplicação
+      file:
+        path: "{{ app_dir }}"
+        owner: www-data
+        group: www-data
+        recurse: yes
+        state: directory
+        mode: '0755'
+
+    - name: Verificar se a página HTML está acessível
+      uri:
+        url: http://{{ ansible_host }}
+        status_code: 200
+

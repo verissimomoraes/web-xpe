@@ -1,0 +1,37 @@
+---
+- name: Instalar e configurar Apache
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Instalar o Apache
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Configurar o firewall para permitir tráfego HTTP
+      ufw:
+        rule: allow
+        port: '80'
+        proto: 'tcp'
+
+    - name: Copiar arquivo de configuração personalizado para o Apache
+      copy:
+        src: ./apache.conf
+        dest: /etc/apache2/sites-available/000-default.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Iniciar e habilitar o serviço Apache
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Verificar se a página HTML está acessível
+      uri:
+        url: http://{{ ansible_host }}
+        status_code: 200
+          
