@@ -18,7 +18,7 @@
 
     - name: Copiar arquivo de configuração personalizado para o Apache
       copy:
-        src: ./apache.conf
+        src: ./arquivos/apache.conf
         dest: /etc/apache2/sites-available/000-default.conf
         owner: root
         group: root
